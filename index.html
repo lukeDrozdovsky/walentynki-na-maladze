@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Walentynki 2026: Kierunek Malaga</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, .romantic-font { font-family: 'Great Vibes', cursive; }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .gradient-text { background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-image: linear-gradient(to right, #e11d48, #db2777); }
+        .chart-container { position: relative; width: 100%; max-width: 400px; margin: 0 auto; height: 300px; }
+        canvas#mapCanvas { width: 100%; height: 300px; border-radius: 1rem; }
+    </style>
+    <!-- Chosen Palette: Rose & Slate (Romantic but professional) -->
+    <!-- Application Structure Plan: Linear narrative flow. 1. Emotional Hook (Hero). 2. Logic/Data (Cost Breakdown). 3. Visualization (Map & Location). 4. Atmosphere (Weather & Vibe). 5. Call to Action. -->
+    <!-- Visualization & Content Choices: Doughnut Chart for cost split (shows value). Custom Canvas Map to abstractly visualize the walking distance (18min) without needing API keys. Weather cards for contrast. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-rose-50 text-slate-800 antialiased selection:bg-rose-200 selection:text-rose-900">
+
+    <nav class="fixed top-0 w-full bg-white/80 backdrop-blur-md shadow-sm z-50 border-b border-rose-100">
+        <div class="max-w-4xl mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="text-2xl font-bold text-rose-600 romantic-font">Julia & Łukasz</div>
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Plan: Walentynki 2026</div>
+        </div>
+    </nav>
+
+    <header class="pt-32 pb-12 px-6 text-center max-w-4xl mx-auto">
+        <div class="inline-block p-3 rounded-full bg-rose-100 text-rose-600 mb-6 animate-bounce">
+            <i class="fas fa-heart text-2xl"></i>
+        </div>
+        <h1 class="text-5xl md:text-7xl mb-6 text-slate-900 leading-tight">
+            Zimna Polska czy<br>
+            <span class="gradient-text">Słoneczna Malaga?</span>
+        </h1>
+        <p class="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            Znalazłem idealną opcję na nasz walentynkowy wyjazd. Świetny termin, genialna cena i słońce, którego nam brakuje. Spójrz na liczby.
+        </p>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 pb-24 space-y-12">
+
+        <section class="bg-white rounded-3xl shadow-xl border border-rose-100 overflow-hidden transform transition hover:scale-[1.01] duration-300">
+            <div class="p-8 md:p-12 grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-4xl mb-2 text-slate-800 romantic-font">Koszty są śmiesznie niskie</h2>
+                    <p class="text-slate-500 mb-8">Całkowity koszt za naszą dwójkę (Loty + Nocleg 3 dni).</p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center p-4 bg-rose-50 rounded-xl border border-rose-200">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-rose-500 shadow-sm">
+                                    <i class="fas fa-plane"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-slate-800">Loty (W Obie Strony)</div>
+                                    <div class="text-xs text-slate-500">Wrocław ⇄ Malaga</div>
+                                </div>
+                            </div>
+                            <div class="font-mono font-bold text-lg">926,70 zł</div>
+                        </div>
+
+                        <div class="flex justify-between items-center p-4 bg-rose-50 rounded-xl border border-rose-200">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-rose-500 shadow-sm">
+                                    <i class="fas fa-bed"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-slate-800">Residencia San José</div>
+                                    <div class="text-xs text-slate-500">3 noce w centrum</div>
+                                </div>
+                            </div>
+                            <div class="font-mono font-bold text-lg">508,00 zł</div>
+                        </div>
+
+                        <div class="pt-6 border-t border-slate-100">
+                            <div class="flex justify-between items-end mb-2">
+                                <span class="text-sm text-slate-400 uppercase font-bold tracking-wider">Razem</span>
+                                <span class="text-3xl font-bold text-slate-900">1434,70 zł</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-slate-400">Cena za osobę</span>
+                                <span class="text-xl font-bold text-rose-600 bg-rose-100 px-3 py-1 rounded-lg">717,35 zł / os.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <div class="chart-container">
+                        <canvas id="costChart"></canvas>
+                    </div>
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div class="text-center">
+                            <div class="text-xs text-slate-400 font-bold uppercase">Budżet</div>
+                            <div class="text-2xl font-bold text-slate-800">Super<br>Deal</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="grid md:grid-cols-2 gap-6">
+            <div class="bg-white p-8 rounded-3xl shadow-lg border border-slate-100">
+                <h3 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3">
+                    <i class="fas fa-calendar-alt text-rose-500"></i> Plan Działania
+                </h3>
+                <div class="relative border-l-2 border-rose-200 ml-3 space-y-8 pl-8 py-2">
+                    <div class="relative">
+                        <div class="absolute -left-[39px] w-5 h-5 bg-rose-500 rounded-full border-4 border-white shadow-md"></div>
+                        <div class="text-sm font-bold text-rose-500">Piątek, 13.02</div>
+                        <div class="font-bold text-slate-800">Wylot z Wrocławia</div>
+                        <div class="text-sm text-slate-500">05:50 - Kawa na lotnisku, 09:30 lądujemy w słońcu.</div>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute -left-[39px] w-5 h-5 bg-rose-300 rounded-full border-4 border-white shadow-md"></div>
+                        <div class="text-sm font-bold text-rose-400">14.02 - 15.02</div>
+                        <div class="font-bold text-slate-800">Walentynkowy Weekend</div>
+                        <div class="text-sm text-slate-500">Zwiedzanie Alcazaby, tapas, spacer plażą Malagueta.</div>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute -left-[39px] w-5 h-5 bg-slate-300 rounded-full border-4 border-white shadow-md"></div>
+                        <div class="text-sm font-bold text-slate-400">Poniedziałek, 16.02</div>
+                        <div class="font-bold text-slate-800">Powrót</div>
+                        <div class="text-sm text-slate-500">10:10 wylot, 13:50 jesteśmy w domu.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-3xl shadow-lg border border-blue-100 relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-8 opacity-10">
+                    <i class="fas fa-sun text-9xl text-yellow-500"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3 relative z-10">
+                    <i class="fas fa-cloud-sun text-yellow-500"></i> Pogoda
+                </h3>
+                
+                <div class="grid grid-cols-2 gap-4 relative z-10">
+                    <div class="bg-white/60 p-4 rounded-2xl text-center">
+                        <div class="text-xs text-slate-500 uppercase font-bold mb-2">Wrocław</div>
+                        <i class="fas fa-snowflake text-2xl text-blue-300 mb-2"></i>
+                        <div class="text-2xl font-bold text-slate-700">2°C</div>
+                        <div class="text-xs text-slate-500">Szaro i zimno</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl shadow-sm text-center transform scale-110 border-2 border-yellow-200">
+                        <div class="text-xs text-yellow-600 uppercase font-bold mb-2">Malaga</div>
+                        <i class="fas fa-sun text-3xl text-yellow-500 mb-2 animate-spin-slow"></i>
+                        <div class="text-3xl font-bold text-slate-800">15°C</div>
+                        <div class="text-xs text-slate-500">Słońce!</div>
+                    </div>
+                </div>
+                <p class="mt-6 text-sm text-slate-600 relative z-10">
+                    Średnio 22 słoneczne dni w lutym. Idealna temperatura na zwiedzanie bez upałów.
+                </p>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
+            <div class="p-8 border-b border-slate-100">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h2 class="text-3xl romantic-font text-slate-800 mb-2">Nasza Baza: San José</h2>
+                        <p class="text-slate-500 text-sm">Residencia Universitaria San José • Malaga Centro</p>
+                    </div>
+                    <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">Ocena 9.5 Lokalizacja</span>
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-3">
+                <div class="md:col-span-1 bg-slate-50 p-6 flex flex-col justify-center gap-4">
+                    <div class="flex items-center gap-3 text-slate-700">
+                        <i class="fas fa-map-marker-alt text-rose-500 w-6 text-center"></i>
+                        <span class="text-sm font-medium">Ścisłe centrum</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-slate-700">
+                        <i class="fas fa-walking text-rose-500 w-6 text-center"></i>
+                        <span class="text-sm font-medium">18 min na plażę</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-slate-700">
+                        <i class="fas fa-coffee text-rose-500 w-6 text-center"></i>
+                        <span class="text-sm font-medium">Blisko kawiarni</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-slate-700">
+                        <i class="fas fa-wifi text-rose-500 w-6 text-center"></i>
+                        <span class="text-sm font-medium">Darmowe WiFi</span>
+                    </div>
+                    <a href="https://www.booking.com/hotel/es/residencia-unoversitaria-san-jose.pl.html" target="_blank" class="mt-4 text-center block w-full py-2 bg-white border border-slate-200 rounded-lg text-slate-600 text-sm font-bold hover:bg-slate-50 transition">
+                        Zobacz na Booking
+                    </a>
+                </div>
+                <div class="md:col-span-2 relative h-80 bg-slate-100">
+                    <canvas id="mapCanvas"></canvas>
+                    <div class="absolute bottom-4 right-4 bg-white/90 px-3 py-1 rounded text-xs text-slate-500 shadow-sm">
+                        Wizualizacja trasy na podstawie mapy
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="text-center space-y-6 pt-8">
+            <h2 class="text-4xl romantic-font text-slate-800">To jak, rezerwujemy?</h2>
+            <div class="flex justify-center gap-4">
+                <button onclick="confettiEffect()" class="bg-rose-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg shadow-rose-200 hover:bg-rose-700 hover:scale-105 transition transform active:scale-95 flex items-center gap-2">
+                    <i class="fas fa-check"></i> Tak, lecimy!
+                </button>
+            </div>
+            <p id="responseMsg" class="h-6 text-rose-600 font-bold opacity-0 transition-opacity duration-500">Wiedziałem! ❤️ Pakuj walizki!</p>
+        </section>
+
+    </main>
+
+    <script>
+        // Data
+        const costs = {
+            flights: 926.70,
+            hotel: 508.00,
+            total: 1434.70
+        };
+
+        // DOM Elements
+        const canvasCost = document.getElementById('costChart');
+        const canvasMap = document.getElementById('mapCanvas');
+        const responseMsg = document.getElementById('responseMsg');
+
+        // Chart.js - Cost Breakdown
+        new Chart(canvasCost, {
+            type: 'doughnut',
+            data: {
+                labels: ['Loty (2 os.)', 'Hotel (3 noce)'],
+                datasets: [{
+                    data: [costs.flights, costs.hotel],
+                    backgroundColor: ['#e11d48', '#fecdd3'], // rose-600, rose-200
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { usePointStyle: true, font: { family: 'Inter', size: 12 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) label += ': ';
+                                label += context.parsed.toFixed(2) + ' zł';
+                                return label;
+                            }
+                        },
+                        backgroundColor: '#fff',
+                        titleColor: '#1e293b',
+                        bodyColor: '#1e293b',
+                        borderColor: '#e2e8f0',
+                        borderWidth: 1
+                    }
+                }
+            }
+        });
+
+        // Custom Map Drawing on Canvas
+        function drawMap() {
+            const ctx = canvasMap.getContext('2d');
+            const w = canvasMap.width = canvasMap.parentElement.offsetWidth;
+            const h = canvasMap.height = canvasMap.parentElement.offsetHeight;
+
+            // Background (Abstract City)
+            ctx.fillStyle = '#f1f5f9';
+            ctx.fillRect(0, 0, w, h);
+
+            // Streets (Abstract)
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 15;
+            ctx.beginPath();
+            ctx.moveTo(w * 0.2, h * 0.2);
+            ctx.lineTo(w * 0.5, h * 0.5); // Intersection
+            ctx.lineTo(w * 0.8, h * 0.4);
+            ctx.moveTo(w * 0.5, h * 0.5);
+            ctx.lineTo(w * 0.6, h * 0.8); // To beach
+            ctx.stroke();
+
+            // Park area
+            ctx.fillStyle = '#dcfce7';
+            ctx.beginPath();
+            ctx.ellipse(w * 0.6, h * 0.6, w * 0.15, h * 0.1, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Sea
+            ctx.fillStyle = '#bae6fd';
+            ctx.beginPath();
+            ctx.moveTo(w * 0.5, h);
+            ctx.lineTo(w, h);
+            ctx.lineTo(w, h * 0.7);
+            ctx.bezierCurveTo(w * 0.8, h * 0.75, w * 0.6, h * 0.8, w * 0.5, h);
+            ctx.fill();
+
+            // Route (Dotted Line)
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(w * 0.25, h * 0.25); // Start
+            ctx.lineTo(w * 0.5, h * 0.5);
+            ctx.lineTo(w * 0.6, h * 0.65);
+            ctx.lineTo(w * 0.85, h * 0.85); // End
+            ctx.stroke();
+
+            // Markers
+            drawMarker(ctx, w * 0.25, h * 0.25, '#e11d48', 'Hotel');
+            drawMarker(ctx, w * 0.85, h * 0.85, '#f59e0b', 'Plaża');
+        }
+
+        function drawMarker(ctx, x, y, color, label) {
+            ctx.setLineDash([]);
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Pulse effect
+            ctx.strokeStyle = color;
+            ctx.globalAlpha = 0.3;
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(x, y, 12, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.globalAlpha = 1.0;
+
+            // Label
+            ctx.fillStyle = '#1e293b';
+            ctx.font = 'bold 12px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText(label, x, y - 15);
+        }
+
+        function confettiEffect() {
+            responseMsg.style.opacity = '1';
+            
+            // Simple confetti simulation using canvas overlay or basic DOM animation could go here
+            // For this single file, we just trigger the text response.
+            const btn = document.querySelector('button');
+            btn.innerHTML = '<i class="fas fa-heart animate-pulse"></i> Zarezerwowane (mentalnie)!';
+            btn.classList.remove('bg-rose-600');
+            btn.classList.add('bg-emerald-500');
+        }
+
+        window.addEventListener('resize', drawMap);
+        drawMap();
+    </script>
+</body>
+</html>
